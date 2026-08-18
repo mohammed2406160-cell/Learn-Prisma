@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test User API</title>
+</head>
+
+<body>
+
+    <h1>Create User</h1>
+
+    <form id="userForm">
+
+        <input type="text" id="firstName" placeholder="First Name" required>
+
+        <input type="text" id="lastName" placeholder="Last Name" required>
+
+        <input type="number" id="age" placeholder="Age" required>
+
+        <button type="submit">Create User</button>
+
+    </form>
+
+    <p id="result"></p>
+
+    <hr>
+
+    <h1>Delete User</h1>
+
+    <input type="number" id="deleteId" placeholder="Enter User ID">
+
+    <button id="deleteButton">Delete User</button>
+
+    <p id="deleteResult"></p>
+
+
+    <script>
+
+        const form = document.getElementById("userForm");
+        const result = document.getElementById("result");
+
+        // CREATE USER
+        form.addEventListener("submit", async (e) => {
+
+            e.preventDefault();
+
+            const firstName =
+                document.getElementById("firstName").value;
+
+            const lastName =
+                document.getElementById("lastName").value;
+
+            const age =
+                Number(document.getElementById("age").value);
+
+            try {
+
+                const response = await fetch(
+                    "http://127.0.0.1:3001/users",
+                    {
+                        method: "POST",
+
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+
+                        body: JSON.stringify({
+                            firstName,
+                            lastName,
+                            age
+                        })
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.message || "Failed to create user"
+                    );
+                }
+
+                result.textContent =
+                    JSON.stringify(data, null, 2);
+
+                console.log("User created:", data);
+
+            } catch (error) {
+
+                console.error("Fetch error:", error);
+
+                result.textContent =
+                    "Error: " + error.message;
+            }
+
+        });
+
+
+        // DELETE USER
+        const deleteButton =
+            document.getElementById("deleteButton");
+
+        const deleteResult =
+            document.getElementById("deleteResult");
+
+        deleteButton.addEventListener("click", async () => {
+
+            const id =
+                document.getElementById("deleteId").value;
+
+            if (!id) {
+                deleteResult.textContent = "Enter User ID";
+                return;
+            }
+
+            try {
+
+                const response = await fetch(
+                    `http://127.0.0.1:3001/users/${id}`,
+                    {
+                        method: "DELETE"
+                    }
+                );
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(
+                        data.message || "Failed to delete user"
+                    );
+                }
+
+                deleteResult.textContent =
+                    JSON.stringify(data, null, 2);
+
+                console.log("User deleted:", data);
+
+            } catch (error) {
+
+                console.error("Delete error:", error);
+
+                deleteResult.textContent =
+                    "Error: " + error.message;
+            }
+
+        });
+
+    </script>
+
+</body>
+
+</html>
